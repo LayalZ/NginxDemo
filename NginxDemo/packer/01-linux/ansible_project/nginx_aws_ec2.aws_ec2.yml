@@ -1,0 +1,13 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+filters:
+  instance-state-name: running
+  "tag:Name": "NginxDemo-NginxServer-ASG-Instance"
+keyed_groups:
+  - key: tags.Name
+    prefix: tag_Name_
+  - key: placement.availability_zone
+    prefix: az_
+compose:
+  ansible_host: private_ip_address

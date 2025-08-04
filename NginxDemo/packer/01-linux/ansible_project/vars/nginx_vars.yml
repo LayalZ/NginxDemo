@@ -1,0 +1,12 @@
+nginx_port_http: 80
+nginx_port_https: 443
+ssl_cert_path: /etc/nginx/ssl/nginx.crt
+ssl_csr_path: /etc/nginx/ssl/nginx.pem
+ssl_key_path: /etc/nginx/ssl/nginx.key
+ssl_country: "US"
+ssl_state: "New York"
+ssl_locality: "New York"
+ssl_organization: "MyCompany"
+ssl_organizational_unit: "IT"
+# IMPORTANT: Replace with your ALB DNS name from Terraform output
+ssl_common_name: "NginxDemo-ALB-1461164369.us-east-1.elb.amazonaws.com"

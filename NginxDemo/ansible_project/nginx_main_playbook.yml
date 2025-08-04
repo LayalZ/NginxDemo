@@ -1,0 +1,18 @@
+---
+- name: Configure Nginx with HTTPS on EC2
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+    - vars/nginx_vars.yml
+
+  tasks:
+    - name: Include Nginx installation tasks
+      ansible.builtin.include_tasks: tasks/install_nginx.yml
+
+    - name: Include Nginx HTTPS configuration tasks
+      ansible.builtin.include_tasks: tasks/configure_nginx_https.yml
+
+    - name: Include Nginx HTTPS configuration tasks
+      ansible.builtin.include_tasks: tasks/create_index_page.yml

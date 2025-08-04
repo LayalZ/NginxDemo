@@ -1,0 +1,10 @@
+- name: Create health-check index page
+  ansible.builtin.copy:
+    dest: /usr/share/nginx/html/index.html
+    content: |
+      <!DOCTYPE html>
+      <html><head><meta charset="UTF-8"><title>Nginx Demo on Linux!</title></head>
+      <body><h1>Nginx is up and running.</h1></body></html>
+    owner: root
+    group: root
+    mode: '0644'

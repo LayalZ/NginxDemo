@@ -1,0 +1,67 @@
+---
+- name: Install Nginx and configure HTTPS on Windows EC2
+  hosts: all
+  gather_facts: yes
+
+  tasks:
+    - name: Install Chocolatey (Windows package manager)
+      win_chocolatey:
+        name: chocolatey
+        state: present
+
+    - name: Install Nginx via Chocolatey
+      win_chocolatey:
+        name: nginx
+        state: present
+
+    - name: Generate a self-signed SSL certificate (if not already available)
+      win_shell: |
+        $certPath = "C:\\tools\\nginx-1.29.0\\conf\\nginx.crt"
+        $keyPath = "C:\\tools\\nginx-1.29.0\\conf\\nginx.key"
+        $nginxDir = "C:\\tools\\nginx-1.29.0\\conf"
+        
+        # Create the directory if it doesn't exist
+        if (-not (Test-Path $nginxDir)) {
+            New-Item -Path $nginxDir -ItemType Directory
+        }
+        
+        # Generate the self-signed certificate if it doesn't exist
+        if (-not (Test-Path $certPath)) {
+            New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "cert:\LocalMachine\My" -KeyExportPolicy Exportable -KeyAlgorithm RSA -KeyLength 2048
+            $cert = Get-ChildItem -Path "cert:\LocalMachine\My" | Where-Object { $_.Subject -like "*localhost*" } | Select-Object -First 1
+            Export-Certificate -Cert $cert -FilePath $certPath
+            Export-PfxCertificate -Cert $cert -FilePath $keyPath -Password (ConvertTo-SecureString -String "P@ssw0rd" -Force -AsPlainText)
+        }
+      args:
+        creates: C:/tools/nginx-1.29.0/conf/nginx.crt  # Skip if cert already exists
+
+    - name: Configure Nginx to use SSL (HTTPS)
+      win_copy:
+        src: files/nginx.conf
+        dest: C:/tools/nginx-1.29.0/conf/nginx.conf
+
+    - name: Configure Nginx as a Windows service
+      win_nssm:
+        name: nginx
+        application: 'C:\tools\nginx-1.29.0\nginx.exe'  # Correct path for Nginx executable
+        arguments: '-g "daemon off;"'
+        state: started
+        startup_type: automatic
+
+    - name: Open port 443 in the firewall for HTTPS
+      win_firewall_rule:
+        name: "Allow HTTPS"
+        localport: 443
+        action: allow
+        protocol: TCP
+        state: present
+
+    - name: Copy the default index.html page for Nginx
+      win_copy:
+        src: files/index.html
+        dest: C:/tools/nginx-1.29.0/html/index.html
+
+    - name: Restart Nginx service to apply changes
+      win_service:
+        name: nginx
+        state: restarted

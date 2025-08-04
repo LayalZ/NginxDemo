@@ -1,0 +1,9 @@
+# /home/ec2-user/packer/02-windows/ansible_project/group_vars/vars.yml
+---
+# This file defines the connection parameters for the group discovered by the dynamic inventory
+ansible_connection: winrm
+ansible_user: Administrator
+ansible_winrm_password: SuperS3cr3t!!!!
+ansible_winrm_transport: basic
+ansible_winrm_server_cert_validation: ignore
+ansible_winrm_port: 5985

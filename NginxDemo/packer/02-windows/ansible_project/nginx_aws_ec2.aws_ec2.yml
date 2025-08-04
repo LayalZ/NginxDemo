@@ -1,0 +1,11 @@
+plugin: amazon.aws.aws_ec2  # Use the correct plugin for EC2
+regions:
+  - us-east-1  # Your AWS region
+filters:
+  tag:Name: "AppNginx-WinPacker-Instance"  # The tag filter to match your Windows EC2 instance
+hosts:
+  - public_dns_name  # Dynamically resolve to the public DNS name of the EC2 instance
+keyed_groups:
+  - key: tags.Name  # Group by EC2 instance name tag
+    separator: "" # This will not add a prefix like "tag_" or "_"
+
